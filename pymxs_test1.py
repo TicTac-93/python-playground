@@ -103,7 +103,9 @@ max_out('Number of Lights in current scene: ' + str(rt.lights.count))
 
 # Print all properties of first light
 max_out('----- Properties of ' + str(rt.lights[0].name) + ' -----')
+
 lightProps = get_obj_props(rt.lights[0])
+
 for i in lightProps:
     max_out(pad_string(str(i), str(rt.getProperty(rt.lights[0], i)), 25, '-'))
 
