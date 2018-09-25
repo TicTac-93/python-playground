@@ -1,20 +1,31 @@
-# Import PyMXS, MaxPlus, and set up shorthand vars
+# --------------
+# Import Modules
+# --------------
+import os
+import sys
 import pymxs
 import MaxPlus
-import util_pymxs
 
-# PyMXS variable setup
+# For 3ds Max - Temporarily add this file's directory to PATH
+sys.path.append(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))))
+
+import util_pymxs as util
+
+# --------------
+# Shorthand Vars
+# --------------
+# Max modules
 rt = pymxs.runtime
-
-# MaxPlus variable setup
 maxScript = MaxPlus.Core.EvalMAXScript
 
-# Utility Functions
-u = util_pymxs
+# Utility functions
+max_out = util.max_out
+pad_string = util.pad_string
+get_obj_props = util.get_obj_props
 
 
 # Stuff
-u.max_out('Hello, Max!')
+max_out('Hello, Max!')
 
 # ----------------
 # Layer Operations
@@ -28,10 +39,10 @@ for i in range(layerCount-1):
         hiddenLayers.append(str(rt.LayerManager.getLayer(i).name))
 
 
-u.max_out('----- Layer Info -----')
-u.max_out('Number of Layers in current scene: ' + str(layerCount))
-u.max_out('Number of Hidden Layers in current scene: ' + str(len(hiddenLayers)))
-u.max_out(hiddenLayers)
+max_out('----- Layer Info -----')
+max_out('Number of Layers in current scene: ' + str(layerCount))
+max_out('Number of Hidden Layers in current scene: ' + str(len(hiddenLayers)))
+max_out(hiddenLayers)
 
 # Examples of doing stuff with layers, given a list of layer names
 # for l in hiddenLayers:
@@ -47,19 +58,19 @@ lightCount = rt.lights.count  # Max has several baked-in selection sets, such as
 lightsOn = []
 lightsOff = []
 
-u.max_out('----- Light Info -----')
-u.max_out('Number of Lights in current scene: ' + str(rt.lights.count))
+max_out('----- Light Info -----')
+max_out('Number of Lights in current scene: ' + str(rt.lights.count))
 
 # Iterate over all lights, print their baseObject, name
 # for i in rt.lights:
-#    u.max_out(str(i.baseObject) + ' -- ' + str(i.name))
+#    max_out(str(i.baseObject) + ' -- ' + str(i.name))
 
 # Print all properties of first light
-u.max_out('----- Properties of ' + str(rt.lights[0].name) + ' -----')
+max_out('----- Properties of ' + str(rt.lights[0].name) + ' -----')
 
-lightProps = u.get_obj_props(rt.lights[0])
+lightProps = get_obj_props(rt.lights[0])
 
 for i in lightProps:
-    u.max_out(u.pad_string(str(i), str(rt.getProperty(rt.lights[0], i)), 25, '-'))
+    max_out(pad_string(str(i), str(rt.getProperty(rt.lights[0], i)), 25, '-'))
 
-u.max_out('----- End Properties -----')
+max_out('----- End Properties -----')
