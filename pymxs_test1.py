@@ -54,6 +54,27 @@ max_out(hiddenLayers)
 # ----------------
 # Light Operations
 # ----------------
+def dump_obj_info(x):
+    """
+    Print out all the properties of the given object
+    :param x: The input object
+    :return: True, unless object doesn't exist.
+    """
+
+    max_out('----- Instances of ' + str(x.name) + ' -----')
+
+    x_instances = maxScript('InstanceMgr.GetInstances $' + x.name + """ &instances
+    instances""")
+    max_out(x_instances)
+
+    max_out('----- Properties of ' + str(x.name) + ' -----')
+
+#    for i in get_obj_props(x):
+#        max_out(pad_string(str(i), str(rt.getProperty(x, i)), 25, '-'))
+
+    max_out('----- End Properties -----')
+
+
 lightCount = rt.lights.count  # Max has several baked-in selection sets, such as lights, helpers, objects, etc.
 lightsOn = []
 lightsOff = []
@@ -61,16 +82,7 @@ lightsOff = []
 max_out('----- Light Info -----')
 max_out('Number of Lights in current scene: ' + str(rt.lights.count))
 
-# Iterate over all lights, print their baseObject, name
-# for i in rt.lights:
-#    max_out(str(i.baseObject) + ' -- ' + str(i.name))
-
-# Print all properties of first light
-max_out('----- Properties of ' + str(rt.lights[0].name) + ' -----')
-
-lightProps = get_obj_props(rt.lights[0])
-
-for i in lightProps:
-    max_out(pad_string(str(i), str(rt.getProperty(rt.lights[0], i)), 25, '-'))
-
-max_out('----- End Properties -----')
+# Iterate over all lights, print their properties
+for i in rt.lights:
+    dump_obj_info(i)
+    max_out('')
