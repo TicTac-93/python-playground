@@ -98,20 +98,13 @@ for tgtObj in rt.lights:
             lights_ignoreList.append(i.name)
 
     # Check if this light has an "on" or "enabled" property.  Dump obj properties if it doesn't.
-    # Checking against None is important, as an existing but disabled property will return it's value: False
     propCheck = False
-    try:
-        if rt.getProperty(tgtObj, 'on') is not None:
-            max_out("Has 'On' property")
-            propCheck = True
-    except Exception:
-        pass
-    try:
-        if rt.getProperty(tgtObj, 'enabled') is not None:
-            max_out("Has 'Enabled' property")
-            propCheck = True
-    except Exception:
-        pass
+    if rt.isProperty(tgtObj, 'on'):
+        max_out("Has 'On' property")
+        propCheck = True
+    if rt.isProperty(tgtObj, 'enabled'):
+        max_out("Has 'Enabled' property")
+        propCheck = True
     if not propCheck:
         dump_obj_info(tgtObj)
 
