@@ -22,6 +22,23 @@ maxScript = MaxPlus.Core.EvalMAXScript
 max_out = util.max_out
 pad_string = util.pad_string
 get_obj_props = util.get_obj_props
+get_instances = util.get_instances
+
+# ---------------
+# Rando Functions
+# ---------------
+def dump_obj_info(x):
+    """
+    Print out all the properties of the given object
+    :param x: The input object
+    :return: True, unless object doesn't exist.
+    """
+    max_out('----- Properties -----')
+
+    for i in get_obj_props(x):
+        max_out(pad_string(str(i), str(rt.getProperty(x, i)), 25, '-'))
+
+    max_out('----- End Properties -----')
 
 
 # Stuff
@@ -54,27 +71,6 @@ max_out(hiddenLayers)
 # ----------------
 # Light Operations
 # ----------------
-def dump_obj_info(x):
-    """
-    Print out all the properties of the given object
-    :param x: The input object
-    :return: True, unless object doesn't exist.
-    """
-
-    max_out('----- Instances of ' + str(x.name) + ' -----')
-
-    x_instances = maxScript('InstanceMgr.GetInstances $' + x.name + """ &instances
-    instances""")
-    max_out(x_instances)
-
-    max_out('----- Properties of ' + str(x.name) + ' -----')
-
-#    for i in get_obj_props(x):
-#        max_out(pad_string(str(i), str(rt.getProperty(x, i)), 25, '-'))
-
-    max_out('----- End Properties -----')
-
-
 lightCount = rt.lights.count  # Max has several baked-in selection sets, such as lights, helpers, objects, etc.
 lightsOn = []
 lightsOff = []
@@ -82,7 +78,41 @@ lightsOff = []
 max_out('----- Light Info -----')
 max_out('Number of Lights in current scene: ' + str(rt.lights.count))
 
+lights_ignoreList = []
+
 # Iterate over all lights, print their properties
-for i in rt.lights:
-    dump_obj_info(i)
+for tgtObj in rt.lights:
+    # Skip this obj if it's in the ignore list
+    if tgtObj.name in lights_ignoreList:
+        continue
+
+    max_out('===== ' + str(tgtObj.name) + ' =====')
+
+    # Print instances, if there are any
+    tgt_instances = get_instances(tgtObj)
+    if len(tgt_instances) > 1:
+        max_out('----- ' + str(len(tgt_instances)) + ' Instances -----')
+
+        for i in tgt_instances:
+            # max_out(i.name)
+            lights_ignoreList.append(i.name)
+
+    # Check if this light has an "on" or "enabled" property.  Dump obj properties if it doesn't.
+    # Checking against None is important, as an existing but disabled property will return it's value: False
+    propCheck = False
+    try:
+        if rt.getProperty(tgtObj, 'on') is not None:
+            max_out("Has 'On' property")
+            propCheck = True
+    except Exception:
+        pass
+    try:
+        if rt.getProperty(tgtObj, 'enabled') is not None:
+            max_out("Has 'Enabled' property")
+            propCheck = True
+    except Exception:
+        pass
+    if not propCheck:
+        dump_obj_info(tgtObj)
+
     max_out('')

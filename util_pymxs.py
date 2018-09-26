@@ -58,3 +58,21 @@ def pad_string(str1, str2, padding, x):
 
     output = output + str2
     return output
+
+
+def get_instances(x):
+    """
+    A short MaxScript snippet to get instances of an object and return their objects in an array.
+    :param x: The input object
+    :return: An array of Max objects.  If there are no instances, it will only contain the source object.
+    """
+    instanceNames = maxScript('InstanceMgr.GetInstances $' + x.name + """ &instances
+    out = #()
+    for i in instances do append out i.name
+    out""").Get()
+
+    instanceObjs = []
+    for i in instanceNames:
+        instanceObjs.append(rt.getNodeByName(i))
+
+    return instanceObjs
