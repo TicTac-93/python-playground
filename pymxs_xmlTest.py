@@ -91,7 +91,6 @@ max_out('Number of Unique Lights: ' + str(rt.lights.count - len(lights_ignoreLis
 
 xml_indent(xmlRoot)
 
-outputPath = os.path.dirname(__file__)
-outputFile = 'radishTest.xml'
-max_out('Writing ' + outputFile + ' to ' + outputPath)
-xmlTree.write(outputPath + '\\' + outputFile)
+outputPath = os.path.dirname(__file__) + '\\radishTest.xml'
+max_out('Writing ' + outputPath)
+xmlTree.write(outputPath)

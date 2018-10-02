@@ -15,7 +15,7 @@ def max_out(x):
     Print x to MAXScript Listener.
     """
 
-    output = 'print "' + str(x) + '"'  # Always convert to string, to be safe
+    output = 'print @"' + str(x) + '"'  # Always convert to string, to be safe.  @ will force it to print literally
     maxScript(output)
 
 
