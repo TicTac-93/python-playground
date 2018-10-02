@@ -38,7 +38,6 @@ Working with Custom XML
 """
 
 
-# Use element.text and element.tail to apply indents and newlines
 def xml_indent(el, depth=0, careful=False):
     """
     Formats an XML ETree with newlines and indents.

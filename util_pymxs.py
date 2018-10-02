@@ -76,3 +76,31 @@ def get_instances(x):
         instanceObjs.append(rt.getNodeByName(i))
 
     return instanceObjs
+
+
+def xml_indent(el, depth=0, careful=False):
+    """
+    Formats an XML ETree with newlines and indents.
+    By default, assumes that nothing is stored in el.text or el.tail.
+    :param el: Root element of XML tree.
+    :param depth: Used for recursive calls, stores depth in tree.
+    :param careful: Checks for content in el.text and el.tail before overwriting.
+    :return: None - Operates on existing tree.
+    """
+    # Prep newline and indent for child elements
+    i = "\n" + depth*"\t"
+
+    # Check if we're being careful or not, switch accordingly
+    # If careful, append indent to contents of el.text and el.tail
+
+    # If careless, replace contents
+    if not careful:
+        if len(el):
+            el.text = i + "\t"  # Newline + Indent sub-elements
+            el.tail = i  # Add newline after closing tag
+            for el in el:  # Use same variable so that the last element in loop will remain accessible
+                xml_indent(el, depth + 1)
+            el.tail = i  # De-indent closing tag
+        else:  # If there aren't sub-elements, just add a newline
+            if not el.tail or not el.tail.strip():
+                el.tail = i
