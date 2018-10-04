@@ -23,6 +23,39 @@ get_obj_props = util.get_obj_props
 get_instances = util.get_instances
 xml_indent = util.xml_indent
 
+
+# --------------
+# XML Validation
+# --------------
+def xml_element_cleaner(el):
+    """
+    Cleans up an input for use as an XML element tag.  Works aggressively, will never fail to return a clean element.
+    :param el: The input to be cleaned up.
+    :return: A valid XML tag string.
+    """
+    output = el
+
+    # Low hanging fruit - strip leading and trailing whitespace
+    output = output.strip()
+
+    # Replace all non-alphanumeric characters with '_'
+    if not output.isalnum():
+        loop_output = ''
+        for char in output:
+            if not char.isalnum() and char is not '_':
+                loop_output += '_'
+            else:
+                loop_output += char
+
+        output = loop_output
+
+    # If the first character is not a-z, or string begins with XML, prepend '_'
+    if not output[0].isalpha() or output.upper().startswith('XML'):
+        output = '_' + output
+
+    return output
+
+
 # Stuff
 max_out('Hello, Max!')
 
@@ -32,15 +65,16 @@ xmlRoot = xmlTree.getroot()
 xmlLayers = ET.SubElement(xmlRoot, 'Layers')
 xmlLights = ET.SubElement(xmlRoot, 'Lights')
 
+
 # ----------------
 # Layer Operations
 # ----------------
 layerCount = rt.layerManager.count
 
 # Add list of layers in scene to XML object
-for i in range(layerCount-1):
+for i in range(layerCount):
     thisLayer = rt.layerManager.getLayer(i)
-    ET.SubElement(xmlLayers, thisLayer.name.strip().replace(' ', '_'), {'trueName': thisLayer.name, 'on': str(thisLayer.on)})
+    ET.SubElement(xmlLayers, xml_element_cleaner(thisLayer.name), {'trueName': thisLayer.name, 'on': str(thisLayer.on)})
 
 
 max_out('----- Layer Info -----')
@@ -80,7 +114,7 @@ for thisLight in rt.lights:
             lights_ignoreList.append(i.name)
 
     # Create entry for this light in XML object
-    thisLightXML = ET.SubElement(xmlLights, thisLight.name.strip().replace(' ', '_'), {'trueName': thisLight.name, 'instances': str(len(tgt_instances)-1)})
+    thisLightXML = ET.SubElement(xmlLights, xml_element_cleaner(thisLight.name), {'trueName': thisLight.name, 'instances': str(len(tgt_instances)-1)})
     # Check if this light has an "on" or "enabled" property - save their state to the XML object if they do
     if rt.isProperty(thisLight, 'on'):
         thisLightXML.set('on', str(thisLight.on))
