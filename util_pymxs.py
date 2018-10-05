@@ -15,7 +15,8 @@ def max_out(x):
     Print x to MAXScript Listener.
     """
 
-    output = 'print @"' + str(x) + '"'  # Always convert to string, to be safe.  @ will force it to print literally
+    # Always convert to string and strip out quotations to be safe.  @ will force it to print literally.
+    output = 'print @"' + str(x).replace('"', '') + '"'
     maxScript(output)
 
 
@@ -66,6 +67,7 @@ def get_instances(x):
     :param x: The input object
     :return: An array of Max objects.  If there are no instances, it will only contain the source object.
     """
+    max_out('DEBUG: get_instances(' + x.name + ')')
     instanceNames = maxScript('InstanceMgr.GetInstances $' + x.name + """ &instances
     out = #()
     for i in instances do append out i.name

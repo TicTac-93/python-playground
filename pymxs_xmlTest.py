@@ -27,6 +27,25 @@ xml_indent = util.xml_indent
 # --------------
 # XML Validation
 # --------------
+def is_ascii(text):
+    """
+    Checks if input can be conformed to ASCII format.
+    :param text:
+    :return: Bool
+    """
+    if isinstance(text, unicode):
+        try:
+            text.encode('ascii')
+        except UnicodeEncodeError:
+            return False
+    else:
+        try:
+            text.decode('ascii')
+        except UnicodeDecodeError:
+            return False
+    return True
+
+
 def xml_element_cleaner(el):
     """
     Cleans up an input for use as an XML element tag.  Works aggressively, will never fail to return a clean element.
@@ -42,7 +61,7 @@ def xml_element_cleaner(el):
     if not output.isalnum():
         loop_output = ''
         for char in output:
-            if not char.isalnum() and char is not '_':
+            if not char.isalnum() and char != '_':
                 loop_output += '_'
             else:
                 loop_output += char
@@ -56,8 +75,29 @@ def xml_element_cleaner(el):
     return output
 
 
+def xml_get_bool(bool_input):
+    """
+    Takes a string or int input, and returns a boolean value.  Acceptable inputs are True, False, 1, 0, case insensitive.
+    :param bool_input:
+    :return: Boolean
+    """
+    # Normalize the input to be uppercase
+    bool_input = str(bool_input).upper()
+
+    if bool_input == 'TRUE' or bool_input == '1':
+        return True
+    else:
+        return False
+
+
 # Stuff
-max_out('Hello, Max!')
+max_out("""
+
+
+
+
+""")
+max_out('===== Getting Scene State =====')
 
 # Set up XML object
 xmlTree = ET.ElementTree(ET.Element('root'))
@@ -74,12 +114,19 @@ layerCount = rt.layerManager.count
 # Add list of layers in scene to XML object
 for i in range(layerCount):
     thisLayer = rt.layerManager.getLayer(i)
+
+    # Print error message if Layer name is invalid
+    if not is_ascii(thisLayer.name):
+        max_out("ERROR!  A layer has non-ASCII characters in it!")
+        continue
+
     ET.SubElement(xmlLayers, xml_element_cleaner(thisLayer.name), {'trueName': thisLayer.name, 'on': str(thisLayer.on)})
+    max_out('DEBUG: ' + thisLayer.name + ' is ' + str(thisLayer.on))
 
 
 max_out('----- Layer Info -----')
-max_out('Number of Layers in current scene: ' + str(layerCount))
-max_out('Number of Hidden Layers in current scene: ' + str(len(xmlRoot.findall("./Layers/[@on='True']"))))
+max_out('Number of Layers: ' + str(layerCount))
+max_out('Number of Hidden Layers: ' + str(len(xmlRoot.findall("./Layers/[@on='False']"))))
 
 # Examples of doing stuff with layers, given a list of layer names
 # for l in hiddenLayers:
@@ -96,7 +143,7 @@ lightsOn = []
 lightsOff = []
 
 max_out('----- Light Info -----')
-max_out('Number of Lights in current scene: ' + str(rt.lights.count))
+max_out('Number of Lights: ' + str(rt.lights.count))
 
 lights_ignoreList = []
 
@@ -104,6 +151,11 @@ lights_ignoreList = []
 for thisLight in rt.lights:
     # Skip this obj if it's in the ignore list
     if thisLight.name in lights_ignoreList:
+        continue
+
+    # Print error message if Light name is invalid
+    if not is_ascii(thisLight.name):
+        max_out("ERROR!  A layer has non-ASCII characters in it!")
         continue
 
     # Print instances, if there are any
@@ -121,10 +173,38 @@ for thisLight in rt.lights:
     if rt.isProperty(thisLight, 'enabled'):
         thisLightXML.set('enabled', str(thisLight.enabled))
 
-max_out('Number of Unique Lights: ' + str(rt.lights.count - len(lights_ignoreList)))
+max_out('Unique Lights: ' + str(rt.lights.count - len(lights_ignoreList)))
+
 
 xml_indent(xmlRoot)
 
+max_out("""
+""")
 outputPath = os.path.dirname(__file__) + '\\radishTest.xml'
 max_out('Writing ' + outputPath)
 xmlTree.write(outputPath)
+
+max_out("""
+""")
+max_out('===== Hiding All Layers =====')
+for i in range(layerCount):
+    rt.layerManager.getLayer(i).on = False
+
+max_out("""
+""")
+max_out('===== Restoring Layer States from XML =====')
+xmlTree = None
+xmlRoot = None
+xmlLayers = None
+xmlLights = None
+
+# Re-read XML file from disk, assign layers states for each entry
+xmlTree = ET.parse(outputPath)
+xmlRoot = xmlTree.getroot()
+xmlLayers = xmlRoot.find('Layers')
+xmlLights = xmlRoot.find('Lights')
+
+max_out('Found ' + str(len(xmlLayers)) + ' Layers in XML file')
+for layer in xmlLayers:
+    max_out(layer.attrib['trueName'] + ' is ' + layer.attrib['on'])
+    rt.layerManager.getLayerFromName(layer.attrib['trueName']).on = xml_get_bool(layer.attrib['on'])
