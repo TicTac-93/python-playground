@@ -16,7 +16,7 @@ def max_out(x):
     """
 
     # Always convert to string and strip out quotations to be safe.  @ will force it to print literally.
-    output = 'print @"' + str(x).replace('"', '') + '"'
+    output = 'print @"' + str(x).replace('"', "'") + '"'
     maxScript(output)
 
 

@@ -95,6 +95,9 @@ class MaxDialogStarter(QtW.QDialog):
 
 # Code for opening the dialog
 
+app = MaxPlus.GetQMaxMainWindow()
+ui = MaxDialogStarter(uif, app)
+
 # Path to UI file
 uif = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))) + "\\qtDesignerTest.ui"
 
@@ -106,7 +109,4 @@ try:
 except:
     pass
 
-app = MaxPlus.GetQMaxMainWindow()
-
-ui = MaxDialogStarter(uif, app)
 ui.show()
